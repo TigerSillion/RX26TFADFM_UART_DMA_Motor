@@ -1,0 +1,39 @@
+# Change Records
+
+## Record 2026-02-14-01
+- Date: 2026-02-14
+- Executor: Codex
+- Scope: RX26T UART-DMA MVP + AGENT/MCP/SKILL/rules governance
+- Related files:
+  - `src/RX26TFADFM_UART_DMA_Motor.c`
+  - `src/app/common/app_types.h`
+  - `src/app/uart_dma/uart_dma_port.h`
+  - `src/app/uart_dma/uart_dma_port.c`
+  - `src/app/uart_dma/uart_dma_demo.h`
+  - `src/app/uart_dma/uart_dma_demo.c`
+  - `src/smc_gen/Config_SCI5/Config_SCI5_user.c`
+  - `src/smc_gen/Config_DMAC0/Config_DMAC0_user.c`
+  - `src/smc_gen/Config_DMAC1/Config_DMAC1_user.c`
+  - `src/smc_gen/general/r_cg_userdefine.h`
+  - `AGENTS.md`
+  - `.codex/config.toml`
+  - `.codex/rules/*`
+  - `.codex/skills/rx-uart-mvp/*`
+  - `.agents/skills/*`
+  - `docs/*`
+  - `CHANGELOG.md`
+- Reason:
+  - Implement UART-DMA minimum closed-loop with strict SMC-safe modifications.
+  - Establish mandatory engineering logging and rule constraints.
+- Risk assessment:
+  - Medium: UART TX path is byte-wise DMAC software trigger, may limit throughput.
+  - Low: SMC overwrite risk controlled by user-region-only edits and documentation.
+- Validation evidence:
+  - 2026-02-14: `ccrx -isa=rxv3 ... src/RX26TFADFM_UART_DMA_Motor.c` -> PASS
+  - 2026-02-14: `ccrx -isa=rxv3 ... src/app/uart_dma/uart_dma_port.c` -> PASS
+  - 2026-02-14: `ccrx -isa=rxv3 ... src/app/uart_dma/uart_dma_demo.c` -> PASS
+  - 2026-02-14: `ccrx -isa=rxv3 ... src/smc_gen/Config_DMAC0/Config_DMAC0_user.c` -> PASS
+  - 2026-02-14: `ccrx -isa=rxv3 ... src/smc_gen/Config_DMAC1/Config_DMAC1_user.c` -> PASS
+  - 2026-02-14: `ccrx -isa=rxv3 ... src/smc_gen/Config_SCI5/Config_SCI5_user.c` -> PASS
+- Open items:
+  - Full target build/link and on-board 10,000-byte stress test pending in e2studio environment.

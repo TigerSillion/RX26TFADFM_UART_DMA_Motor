@@ -1,0 +1,13 @@
+# Ignore build artifacts
+HardwareDebug/
+DefaultBuild/
+Debug/
+Release/
+*.abs
+*.mot
+*.map
+*.obj
+*.lib
+*.x
+*.ud*
+*.tmp

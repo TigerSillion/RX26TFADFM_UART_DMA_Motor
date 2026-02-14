@@ -1,0 +1,25 @@
+# Enforced command rules for Codex (Starlark)
+
+prefix_rule(
+    pattern = ["git", "reset", "--hard"],
+    decision = "forbidden",
+    justification = "Use non-destructive git workflows unless explicitly requested."
+)
+
+prefix_rule(
+    pattern = ["git", "checkout", "--"],
+    decision = "forbidden",
+    justification = "Do not discard local changes without explicit request."
+)
+
+prefix_rule(
+    pattern = ["rm", "-rf"],
+    decision = "prompt",
+    justification = "Destructive deletion requires explicit confirmation."
+)
+
+prefix_rule(
+    pattern = ["Remove-Item", "-Recurse", "-Force"],
+    decision = "prompt",
+    justification = "Destructive deletion requires explicit confirmation."
+)
