@@ -132,7 +132,7 @@ void r_Config_SCI5_receiveerror_interrupt(void)
 
 static void r_Config_SCI5_callback_transmitend(void)
 {
-/* Start user code for r_Config_SCI5_callback_transmitend. Do not edit comment generated here */
+    /* Start user code for r_Config_SCI5_callback_transmitend. Do not edit comment generated here */
     /* USER CODE SAFE: TX completion hook for app layer */
     uart_dma_port_on_tx_end_isr();
     /* End user code. Do not edit comment generated here */
@@ -147,7 +147,7 @@ static void r_Config_SCI5_callback_transmitend(void)
 
 static void r_Config_SCI5_callback_receiveend(void)
 {
-/* Start user code for r_Config_SCI5_callback_receiveend. Do not edit comment generated here */
+    /* Start user code for r_Config_SCI5_callback_receiveend. Do not edit comment generated here */
     /* USER CODE SAFE: DMAC0 callback owns RX completion handling */
     /* End user code. Do not edit comment generated here */
 }
@@ -161,7 +161,7 @@ static void r_Config_SCI5_callback_receiveend(void)
 
 static void r_Config_SCI5_callback_receiveerror(void)
 {
-/* Start user code for r_Config_SCI5_callback_receiveerror. Do not edit comment generated here */
+    /* Start user code for r_Config_SCI5_callback_receiveerror. Do not edit comment generated here */
     /* USER CODE SAFE: RX error hook */
     uart_dma_port_on_rx_error_isr();
     /* End user code. Do not edit comment generated here */

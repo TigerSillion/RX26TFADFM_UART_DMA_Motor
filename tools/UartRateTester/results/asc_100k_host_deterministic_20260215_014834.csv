@@ -1,0 +1,3 @@
+baud,reachable,ok,fail,timeout,mismatch,pkt_loss_pct,byte_loss_pct,kbps,first_fail
+2000000,1,800,0,0,0,0.0,0.0,60.263937655324206,-
+2100000,0,0,800,800,0,100.0,100.0,0.0,switch_fail:ping_new_fail:b''

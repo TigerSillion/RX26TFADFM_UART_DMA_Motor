@@ -1,0 +1,6 @@
+baud,ok,sent,recv,mismatch,timeout,seconds,kbps,note
+115200,N,6,0,1,1,2.149724,0.000,bad pong: b''
+115200,N,6,0,1,1,2.155866,0.000,bad pong: b''
+115200,N,6,0,1,1,2.132299,0.000,bad pong: b''
+115200,N,6,0,1,1,2.118167,0.000,bad pong: b''
+115200,N,6,0,1,1,2.117774,0.000,bad pong: b''

@@ -1,0 +1,2 @@
+baud,ok,sent,recv,mismatch,timeout,seconds,kbps,note
+115200,N,6,18,1,1,2.155781,0.067,bad pong: b'@ERR:UNKNOWN_CMD\r\n'

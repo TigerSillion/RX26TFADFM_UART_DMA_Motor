@@ -1,0 +1,3 @@
+baud,packets,ok,fail,timeout,mismatch,pkt_loss_pct,sent,recv,byte_loss,byte_loss_pct,sec,kbps,first_fail
+2000000,1000,1000,0,0,0,0.000000,128000,128000,0,0.000000,16.932801,60.474,-
+2100000,1000,0,1000,1000,0,100.000000,0,0,0,100.000000,0.000000,0.000,switch_fail:ping_new_fail:b''

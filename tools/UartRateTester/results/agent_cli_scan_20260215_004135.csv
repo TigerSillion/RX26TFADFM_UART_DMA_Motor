@@ -1,0 +1,6 @@
+run,stage,baud,ok,sent,recv,mismatch,timeout,sec,kbps,note
+1,handshake,115200,1,0,0,0,0,0.0,0.0,@PONG
+1,stress,115200,1,25600,25600,0,0,5.54658317565918,36.92363271477682,-
+1,switch,230400,0,0,0,0,0,0.0,0.0,ready_fail:b''
+2,handshake,115200,0,0,0,0,0,0.0,0.0,9
+3,handshake,115200,0,0,0,0,0,0.0,0.0,9

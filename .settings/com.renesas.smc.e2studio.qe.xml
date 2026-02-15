@@ -4,8 +4,8 @@
         <Setting id="SrcGeneratedPath" value="src/smc_gen"/>
     </Segment>
     <Segment id="Pin">
-        <Setting id="P36" value="TXD5"/>
-        <Setting id="P37" value="RXD5"/>
+        <Setting id="PB5" value="TXD5"/>
+        <Setting id="PB6" value="RXD5"/>
         <Setting id="PN7" value="EMLE"/>
         <Setting id="PN6" value="FINED"/>
     </Segment>
@@ -98,7 +98,7 @@
             <Setting id="BSP_CFG_USER_EXCLUSIVE_CONTROL_ENABLE" value="0"/>
         </Segment>
         <Segment component="com.renesas.smc.tools.swcomponent.codegenerator.sciasyncmode" id="Config_SCI5" source="com.renesas.smc.tools.swcomponent.codegenerator.source">
-            <Setting id="BitEdge" value="LowLevel"/>
+            <Setting id="BitEdge" value="FallEdge"/>
             <Setting id="TransEnd" value="Enable"/>
             <Setting id="RecvError" value="Enable"/>
             <Setting id="DataInvert" value="Normal"/>
@@ -117,7 +117,7 @@
             <Setting id="Parity" value="None"/>
             <Setting id="TransTiming" value="nochange"/>
             <Setting id="RXIPriority" value="Level10"/>
-            <Setting id="DutyCorrection" value="Disable"/>
+            <Setting id="DutyCorrection" value="Enable"/>
             <Setting id="FlowControl" value="None"/>
             <Setting id="TransSignal" value="Normal"/>
             <Setting id="RxdSigSel" value="RXD5"/>
@@ -125,7 +125,7 @@
             <Setting id="MultiIntRXIEnable" value="Check"/>
             <Setting id="StopBit" value="1Bit"/>
             <Setting id="ERIEnable" value="Enable"/>
-            <Setting id="Bitrate" value="3750000"/>
+            <Setting id="Bitrate" value="2000000"/>
             <Setting id="RecvDataHandle" value="DMAC"/>
             <Setting id="RecvEnd" value="Enable"/>
             <Setting id="DataLength" value="8Bits"/>

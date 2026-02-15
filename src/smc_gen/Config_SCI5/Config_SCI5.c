@@ -52,13 +52,13 @@ void R_Config_SCI5_Create(void)
     SCI5.SCR.BYTE = 0x00U;
 
     /* Set TXD5 pin */
-    MPC.P36PFS.BYTE = 0x0AU;
-    PORT3.PODR.BYTE |= 0x40U;
-    PORT3.PDR.BYTE |= 0x40U;
+    MPC.PB5PFS.BYTE = 0x0AU;
+    PORTB.PODR.BYTE |= 0x20U;
+    PORTB.PDR.BYTE |= 0x20U;
 
     /* Set RXD5 pin */
-    MPC.P37PFS.BYTE = 0x0AU;
-    PORT3.PMR.BYTE |= 0x80U;
+    MPC.PB6PFS.BYTE = 0x0AU;
+    PORTB.PMR.BYTE |= 0x40U;
 
     /* Set clock enable */
     SCI5.SCR.BYTE = _00_SCI_INTERNAL_SCK_UNUSED;
@@ -72,14 +72,15 @@ void R_Config_SCI5_Create(void)
                     _00_SCI_DATA_LENGTH_8 | _00_SCI_ASYNCHRONOUS_OR_I2C_MODE;
     SCI5.SCMR.BYTE = _00_SCI_SERIAL_MODE | _00_SCI_DATA_INVERT_NONE | _00_SCI_DATA_LSB_FIRST | 
                      _10_SCI_DATA_LENGTH_8_OR_7 | _62_SCI_SCMR_DEFAULT;
-    SCI5.SEMR.BYTE = _00_SCI_INSTANT_TRANSMIT_DISABLE | _00_SCI_BIT_MODULATION_DISABLE | _00_SCI_DEPEND_BGDM_ABCS | 
+    SCI5.SEMR.BYTE = _00_SCI_INSTANT_TRANSMIT_DISABLE | _04_SCI_BIT_MODULATION_ENABLE | _00_SCI_DEPEND_BGDM_ABCS | 
                      _00_SCI_16_BASE_CLOCK | _00_SCI_NOISE_FILTER_DISABLE | _40_SCI_BAUDRATE_DOUBLE | 
-                     _00_SCI_LOW_LEVEL_START_BIT;
+                     _80_SCI_FALLING_EDGE_START_BIT;
     SCI5.SPTR.BYTE = _00_SCI_IN_SIGNAL_NOT_INVERT | _00_SCI_OUT_SIGNAL_NOT_INVERT | _00_SCI_RECEIVE_TIME_NOT_ADJUST | 
                      _00_SCI_TRANSMIT_TIME_NOT_ADJUST | _03_SCI_SPTR_DEFAULT;
 
     /* Set bit rate */
     SCI5.BRR = 0x00U;
+    SCI5.MDDR = 0x89U;
 
     /* Set RXD5 signal input select */
     SYSTEM.PRDFR0.BIT.SCI5RXD = 0U;
@@ -117,7 +118,7 @@ void R_Config_SCI5_Start(void)
 void R_Config_SCI5_Stop(void)
 {
     /* Set TXD5 pin */
-    PORT3.PMR.BYTE &= 0xBFU;
+    PORTB.PMR.BYTE &= 0xDFU;
 
     /* Disable serial transmit */
     SCI5.SCR.BIT.TE = 0U;
@@ -169,7 +170,7 @@ MD_STATUS R_Config_SCI5_Serial_Send(uint8_t * const tx_buf, uint16_t tx_num)
 {
     SCI5.SCR.BYTE |= 0xA0U;
     /* Set TXD5 pin */
-    PORT3.PMR.BYTE |= 0x40U;
+    PORTB.PMR.BYTE |= 0x20U;
 
     return MD_OK;
 }

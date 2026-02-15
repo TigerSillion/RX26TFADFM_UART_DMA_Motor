@@ -1,0 +1,2 @@
+baud,packets,ok,fail,timeout,mismatch,pkt_loss_pct,sent,recv,byte_loss,byte_loss_pct,sec,kbps,first_fail
+2000000,3000,3000,0,0,0,0.000000,384000,384000,0,0.000000,50.255691,61.127,-

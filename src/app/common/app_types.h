@@ -18,6 +18,11 @@ typedef struct
     volatile uint8_t rx_byte;
     volatile uint8_t rx_flag;
     volatile uint8_t tx_done;
+    volatile uint32_t rx_count;
+    volatile uint32_t rx_overrun_count;
+    volatile uint32_t tx_count;
+    volatile uint32_t tx_timeout_count;
+    volatile uint32_t rx_error_count;
 } uart_dma_diag_t;
 
 #endif

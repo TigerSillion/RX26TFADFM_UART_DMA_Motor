@@ -37,3 +37,405 @@
   - 2026-02-14: `ccrx -isa=rxv3 ... src/smc_gen/Config_SCI5/Config_SCI5_user.c` -> PASS
 - Open items:
   - Full target build/link and on-board 10,000-byte stress test pending in e2studio environment.
+
+## Record 2026-02-14-02
+- Date: 2026-02-14
+- Executor: Codex
+- Scope: Documentation encoding repair
+- Related files:
+  - `docs/SMC_GEN_MODIFICATIONS.md`
+  - `docs/MIDDLEWARE_FLOW_UART_DMA.md`
+  - `docs/ENGINEERING_RULES.md`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - Previous document write used incompatible encoding and produced garbled Chinese text.
+- Risk assessment:
+  - Low: documentation-only change, no source code behavior impact.
+- Validation evidence:
+  - 2026-02-14: opened each target document and verified readable Chinese content.
+  - 2026-02-14: `rg -n "\\?\\?\\?|\\?" docs -S` -> no garbled marker found.
+
+## Record 2026-02-14-03
+- Date: 2026-02-14
+- Executor: Codex
+- Scope: UART functional test optimization and test interface
+- Related files:
+  - `src/app/common/app_types.h`
+  - `src/app/uart_dma/uart_dma_port.h`
+  - `src/app/uart_dma/uart_dma_port.c`
+  - `src/app/uart_dma/uart_dma_demo.c`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User reported functional test anomalies and requested optimization or a simple validation interface.
+- Risk assessment:
+  - Medium: additional command processing in demo loop; possible behavior change if host previously relied on raw echo only.
+  - Low: no change in `smc_gen` generated logic.
+- Validation evidence:
+  - 2026-02-14: `ccrx ... src/app/uart_dma/uart_dma_port.c` -> PASS
+  - 2026-02-14: `ccrx ... src/app/uart_dma/uart_dma_demo.c` -> PASS
+  - 2026-02-14: `ccrx ... src/app/common/app_types.h` -> PASS
+- Test instructions:
+  - Open serial tool, reset board, send `h` to get command list.
+  - Send `s` to read counters.
+  - Send `t` to verify test token output.
+  - Send `b` to run 256-byte burst TX and check `tx_timeout_count` remains 0.
+
+## Record 2026-02-14-04
+- Date: 2026-02-14
+- Executor: Codex
+- Scope: Desktop GUI UART upper-rate test tool
+- Related files:
+  - `tools/UartRateTester/uart_rate_tester.py`
+  - `tools/UartRateTester/README.md`
+  - `tools/UartRateTester/run_uart_rate_tester.bat`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested a simple GUI for self-test and baud-rate upper-limit scan.
+- Risk assessment:
+  - Low: host-side tool only, no MCU firmware behavior change.
+- Validation evidence:
+  - 2026-02-14: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+  - 2026-02-14: README content check -> PASS
+- Usage summary:
+  - Select COM port and candidate baud list.
+  - Click `Start Scan`.
+  - Inspect `ok/sent/recv/mismatch/timeout/kbps` per baud.
+
+## Record 2026-02-14-05
+- Date: 2026-02-14
+- Executor: Codex
+- Scope: MCU/GUI coordinated baud-step handshake test (115200 -> up to 4Mbps)
+- Related files:
+  - `src/app/uart_dma/uart_dma_port.h`
+  - `src/app/uart_dma/uart_dma_port.c`
+  - `src/app/uart_dma/uart_dma_demo.c`
+  - `tools/UartRateTester/uart_rate_tester.py`
+  - `tools/UartRateTester/README.md`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested both MCU and PC support for commanded baud switching and upper-limit error-rate test.
+- Risk assessment:
+  - Medium: runtime baud switching may fail on specific baud values depending on clock divider limits.
+  - Low: changes are in app/tool layer, no non-user `smc_gen` region modification.
+- Validation evidence:
+  - 2026-02-14: `ccrx ... src/app/uart_dma/uart_dma_port.c` -> PASS
+  - 2026-02-14: `ccrx ... src/app/uart_dma/uart_dma_demo.c` -> PASS
+  - 2026-02-14: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+- Test instructions:
+  - MCU boots at 115200 and responds to `@PING`.
+  - GUI sends `@SETBAUD:<rate>` from current baud and waits for `@READY:<rate>` on new baud.
+  - GUI then runs packet echo stress and records mismatch/timeout and kbps for each baud.
+
+## Record 2026-02-15-06
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: UART GUI process-visualization enhancement
+- Related files:
+  - `tools/UartRateTester/uart_rate_tester.py`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested a visible GUI process to observe test stages and progress in real time.
+- Risk assessment:
+  - Low: host-side GUI enhancement only; no MCU firmware or `smc_gen` impact.
+- Validation evidence:
+  - 2026-02-15: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+- Test instructions:
+  - Run `tools/UartRateTester/run_uart_rate_tester.bat`.
+  - Select COM port and baud candidates.
+  - Click `Start Scan` and verify:
+    - Phase switches among `Handshake`, `Switch Baud`, `Stress Test`.
+    - Progress bar increases to 100%.
+    - Detail shows packet progress (`pkt x/y`) during stress test.
+
+## Record 2026-02-15-07
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: GUI "all fail" root-cause fix
+- Related files:
+  - `tools/UartRateTester/uart_rate_tester.py`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User reported all test cases failed in GUI scan.
+- Root cause:
+  - Handshake decision used string truthiness (`if not boot["ok"]`), causing `"N"` path not to stop scan.
+  - Handshake/switch ack logic read single line only and was vulnerable to banner/noise timing.
+- Risk assessment:
+  - Low: host test tool only; no firmware and no `smc_gen` change.
+- Validation evidence:
+  - 2026-02-15: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+- Test instructions:
+  - Re-run GUI scan at `115200` only first; confirm handshake row becomes `ok=Y`.
+  - Then add higher bauds incrementally and observe first failing baud and note text.
+
+## Record 2026-02-15-08
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: UART GUI CSV export and auto-save
+- Related files:
+  - `tools/UartRateTester/uart_rate_tester.py`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested to continue with practical validation workflow and traceable outputs.
+- Risk assessment:
+  - Low: host-side test utility enhancement only.
+- Validation evidence:
+  - 2026-02-15: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+- Test instructions:
+  - Run GUI and execute a scan.
+  - Verify auto-generated CSV under `tools/UartRateTester/results/`.
+  - Optionally click `Export CSV` to save to custom path.
+
+## Record 2026-02-15-09
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: GUI command framing bug fix
+- Related files:
+  - `tools/UartRateTester/uart_rate_tester.py`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User reported issue still persisted after previous fixes.
+- Root cause:
+  - Host tool sent literal `\\n` bytes in commands, so MCU command parser never saw line termination.
+- Fix:
+  - Replaced `@PING\\n` -> `@PING\n`
+  - Replaced `@SETBAUD:<rate>\\n` -> `@SETBAUD:<rate>\n`
+- Validation evidence:
+  - 2026-02-15: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+
+## Record 2026-02-15-10
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: Intermittent test failure root-cause fix (MCU RX buffering + host sync)
+- Related files:
+  - `src/app/common/app_types.h`
+  - `src/app/uart_dma/uart_dma_port.c`
+  - `src/app/uart_dma/uart_dma_demo.c`
+  - `tools/UartRateTester/uart_rate_tester.py`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User reported unstable behavior ("sometimes good, sometimes bad"), and requested direct agent-side testing.
+- Root cause summary:
+  - MCU RX used one-byte mailbox + flag; bytes could be overwritten before main loop consumed them.
+  - Host tests could desynchronize MCU command parser when previous command line was incomplete.
+  - Some test payload patterns could interfere with demo command channel semantics.
+- Fix:
+  - Implemented RX ring buffer in ISR path and pop in `uart_dma_port_try_get_rx_byte`.
+  - Added `rx_overrun_count` diagnostics.
+  - Added handshake pre-sync newline in GUI.
+  - Constrained GUI stress payload to command-safe bytes.
+- Validation evidence:
+  - 2026-02-15: `make all` in `HardwareDebug` -> PASS
+  - 2026-02-15: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+  - 2026-02-15: auto GDB download attempt blocked by emulator occupancy (`The specified emulator has already been used`).
+
+## Record 2026-02-15-11
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: Direct agent-side UART rate stress test and GUI switch-criteria refinement
+- Related files:
+  - `tools/UartRateTester/uart_rate_tester.py`
+  - `tools/UartRateTester/results/agent_cli_scan_20260215_004135.csv`
+  - `tools/UartRateTester/results/agent_cli_scan_resync_20260215_004341.csv`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested direct autonomous testing due unstable GUI observations.
+- Test result summary:
+  - Stable pass at `115200/230400/460800/921600` (multiple runs, zero mismatch/timeout).
+  - Fails when switching to `1000000` (`ping_new_fail`), indicating current baud-generation strategy limit.
+- Improvement:
+  - GUI baud switch success now allows `ACK + ping @ new baud` fallback even when `@READY` frame is missed.
+- Validation evidence:
+  - 2026-02-15: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+
+## Record 2026-02-15-12
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: MCU high-baud adaptation algorithm optimization
+- Related files:
+  - `src/app/uart_dma/uart_dma_port.c`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - Previous runtime baud algorithm used a fixed divisor model and failed at >=1Mbps.
+- Fix summary:
+  - Added SCI baud mode search table across SMR/SEMR combinations.
+  - Runtime selects minimum baud error candidate and programs `SMR/SEMR/BRR`.
+  - Added maximum baud error threshold (`UART_DMA_BAUD_ERR_MAX_PERMILLE`) for reject path.
+- Risk assessment:
+  - Medium: runtime changes now touch both `SMR` and `SEMR`; invalid assumptions on divisor model may affect some baud points.
+- Validation evidence:
+  - 2026-02-15: `make all` in `HardwareDebug` -> PASS
+  - 2026-02-15: auto download script attempt blocked by debugger occupancy (`The specified emulator has already been used`).
+
+## Record 2026-02-15-13
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: Post-update direct rate-limit validation (agent autonomous run)
+- Related files:
+  - `tools/UartRateTester/results/agent_cli_scan_after_baud_algo_20260215_005400.csv`
+  - `docs/CHANGE_RECORDS.md`
+- Test configuration:
+  - Port: `COM3`
+  - Packet payload: `128 bytes`
+  - Packets per baud: `300`
+  - Runs: `3`
+  - Baud sweep: `115200 -> 230400 -> 460800 -> 921600 -> 1000000 -> 1500000 -> 2000000 -> 3000000 -> 4000000`
+- Result summary:
+  - Stable PASS: `115200`, `230400`, `460800`, `921600`, `1000000`, `1500000`, `2000000`
+  - Stable FAIL: switch to `3000000` (`ping_new_fail`, non-ASCII garbage response)
+  - `4000000` not reached due `3000000` gate failure.
+- Conclusion:
+  - New baud adaptation algorithm successfully removed previous `1Mbps` barrier and extended stable operation up to `2Mbps` under current hardware setup.
+
+## Record 2026-02-15-14
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: Descending baud stability/loss scan tool and 2.5M-first test run
+- Related files:
+  - `tools/UartRateTester/uart_desc_loss_scan.py`
+  - `tools/UartRateTester/results/desc_100k_scan_20260215_011437.csv`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested high-to-low scan from default `2.5Mbps` with `100k` cadence.
+- Validation evidence:
+  - 2026-02-15: `python -m py_compile tools/UartRateTester/uart_desc_loss_scan.py` -> PASS
+  - 2026-02-15: `python tools/UartRateTester/uart_desc_loss_scan.py --port COM3 --start 2500000 --end 100000 --step 100000 --packets 200 --payload 128 --timeout 0.02` -> completed
+- Result summary:
+  - This run did not establish a stable echo session at any baud step (all packet loss = 100% in current session context).
+  - Indicates runtime mode/channel state mismatch rather than single-point baud capability conclusion.
+
+## Record 2026-02-15-15
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: Re-test after user confirmation ("ready") for 2.5Mbps and descending 100k scan
+- Related files:
+  - `tools/UartRateTester/results/desc_100k_scan_20260215_012747.csv`
+  - `docs/CHANGE_RECORDS.md`
+- Commands executed:
+  - 2.5Mbps fixed-point stress: `2000 packets x 128 bytes`
+  - Descending scan: `2500000 -> 100000`, step `100000`, `150 packets x 128 bytes` per baud
+- Result summary:
+  - 2.5Mbps fixed-point: packet loss `100%`, byte loss `100%` (timeout from packet 0).
+  - Descending scan: all baud points packet loss `100%` in this runtime session.
+  - Some baud points returned partial/garbled bytes, indicating baud/domain mismatch rather than a stable echo channel.
+- Conclusion:
+  - Current board runtime is not in a deterministic testable echo state; baud-rate capability cannot be inferred from this run alone.
+
+## Record 2026-02-15-16
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: User-requested 2Mbps re-test after runtime reconfiguration
+- Related files:
+  - `tools/UartRateTester/results/agent_2m_retest_20260215_013332.csv`
+  - `docs/CHANGE_RECORDS.md`
+- Test configuration:
+  - Port: `COM3`
+  - Baud: `2000000`
+  - Payload: `128 bytes`
+  - Packets: `3000`
+- Result summary:
+  - `ok=3000`, `fail=0`, `timeout=0`, `mismatch=0`
+  - Packet loss rate: `0.000000%`
+  - Byte loss rate: `0.000000%`
+  - Throughput: `61.127 kbps` (current test method, single packet transaction loop)
+
+## Record 2026-02-15-17
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: Ascending 100k-step scan from 2Mbps
+- Related files:
+  - `tools/UartRateTester/results/asc_100k_scan_20260215_013630.csv`
+  - `docs/CHANGE_RECORDS.md`
+- Test configuration:
+  - Port: `COM3`
+  - Scan: `2000000 -> 4000000`, step `100000`
+  - Per-baud stress: `1000 packets x 128 bytes`
+- Result summary:
+  - `2000000`: pass (`0%` packet/byte loss)
+  - `2100000`: switch failed (`ping_new_fail`), scan stopped
+- Conclusion:
+  - Under current setup, stable operating point remains at `2.0Mbps`; first failing step observed at `2.1Mbps`.
+
+## Record 2026-02-15-18
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: MCU autonomous baud sweep command implementation
+- Related files:
+  - `src/app/uart_dma/uart_dma_demo.c`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested MCU-side automatic 100k-step baud progression from current default.
+- Implementation summary:
+  - Added autosweep command set:
+    - `@AUTOSWEEP:START,END,STEP,MS`
+    - `@AUTOSWEEP:STOP`
+    - `@AUTOSWEEP:STATUS`
+  - Added runtime sweep state machine and interval-driven baud stepping in main loop.
+  - Added sweep status output frames (`@SWEEP:SET/OK/ERR/DONE`).
+- Validation evidence:
+  - 2026-02-15: `make all` in `HardwareDebug` -> PASS
+
+## Record 2026-02-15-19
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: MCU autosweep runtime follow-up validation (host synchronized follow)
+- Related files:
+  - `tools/UartRateTester/results/autosweep_follow_from_115200_20260215_014445.csv`
+  - `tools/UartRateTester/results/autosweep_follow_windowed_20260215_014543.csv`
+  - `docs/CHANGE_RECORDS.md`
+- Test setup:
+  - MCU command: `@AUTOSWEEP:2000000,2500000,100000,1200` (and windowed variant at 1500ms)
+  - Host follows each target baud and executes short echo stress test.
+- Observed result pattern:
+  - Reachable+stable: `2.1M`, `2.2M`, `2.3M`, `2.5M` (all tested packets pass)
+  - Not reached in host-follow window: `2.0M`, `2.4M` (ping timeout in this capture)
+- Notes:
+  - Autosweep mode is active and switching occurred (multiple high-speed points validated).
+  - Missing points likely due sweep timing/actual baud quantization mismatch, requires tighter host synchronization or MCU-side sweep hold/report enhancement for deterministic per-step capture.
+
+## Record 2026-02-15-20
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: Deterministic host-driven high-baud re-validation up to 4Mbps
+- Related files:
+  - `tools/UartRateTester/results/asc_100k_host_deterministic_20260215_014834.csv`
+  - `tools/UartRateTester/results/pointwise_2m_to_4m_20260215_015021.csv`
+  - `docs/CHANGE_RECORDS.md`
+- Test methods:
+  - Method A: 100k ascending scan with strict host `SETBAUD->PING->STRESS` flow.
+  - Method B: pointwise independent test for each baud from `2.0M` to `4.0M` (recover to `2.0M` before each target).
+- Key results:
+  - Stable pass at `2.0M` (`0%` packet loss in both methods).
+  - Method A first failure at `2.1M` (`ping_new_fail`).
+  - Method B found another stable point at `2.4M` (`0%` packet loss), while many neighboring points failed command-level handshake.
+- Interpretation:
+  - High-baud validity is non-monotonic under current clock/line condition; some discrete baud points are viable while adjacent points are not.
+
+## Record 2026-02-15-21
+- Date: 2026-02-15
+- Executor: Codex
+- Scope: Stable-point scan tool addition and runtime availability check
+- Related files:
+  - `tools/UartRateTester/uart_stable_point_scan.py`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested to continue with systematic stable-point discovery.
+- Validation evidence:
+  - 2026-02-15: `python -m py_compile tools/UartRateTester/uart_stable_point_scan.py` -> PASS
+  - 2026-02-15: tool execution attempted; failed precondition (`current_baud=None`)
+  - 2026-02-15: fallback probe over `100k..4M` reported `NOT_FOUND`
+- Conclusion:
+  - MCU is not currently in command-responsive runtime state; further automated sweep requires user-side reset/resume first.

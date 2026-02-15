@@ -43,14 +43,14 @@ void R_Pins_Create(void)
     R_BSP_RegisterProtectDisable(BSP_REG_PROTECT_MPC);
 
     /* Set RXD5 pin */
-    MPC.P37PFS.BYTE = 0x0AU;
-    PORT3.PMR.BYTE |= 0x80U;
+    MPC.PB6PFS.BYTE = 0x0AU;
+    PORTB.PMR.BYTE |= 0x40U;
 
     /* Set TXD5 pin */
-    PORT3.PODR.BYTE |= 0x40U;
-    MPC.P36PFS.BYTE = 0x0AU;
-    PORT3.PDR.BYTE |= 0x40U;
-    // PORT3.PMR.BIT.B6 = 1U; // Please set the PMR bit after TE bit is set to 1.
+    PORTB.PODR.BYTE |= 0x20U;
+    MPC.PB5PFS.BYTE = 0x0AU;
+    PORTB.PDR.BYTE |= 0x20U;
+    // PORTB.PMR.BIT.B5 = 1U; // Please set the PMR bit after TE bit is set to 1.
 
     R_BSP_RegisterProtectEnable(BSP_REG_PROTECT_MPC);
 }

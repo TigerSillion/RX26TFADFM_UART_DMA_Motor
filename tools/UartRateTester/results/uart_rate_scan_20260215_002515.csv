@@ -1,0 +1,6 @@
+baud,ok,sent,recv,mismatch,timeout,seconds,kbps,note
+115200,N,6,18,1,1,2.155781,0.067,bad pong: b'@ERR:UNKNOWN_CMD\r\n'
+115200,Y,6,7,0,0,0.136969,0.409,handshake @PING/@PONG
+115200,N,512,512,1,0,0.228588,17.919,mismatch at pkt 0
+115200,Y,6,7,0,0,0.143519,0.390,handshake @PING/@PONG
+115200,N,512,512,1,0,0.227398,18.012,mismatch at pkt 0

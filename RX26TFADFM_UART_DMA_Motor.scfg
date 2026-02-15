@@ -387,8 +387,8 @@
     <tool id="Pins" version="1.0.1.0">
         <pinItem allocation="1" comments="" direction="None" id="EMLE" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
         <pinItem allocation="4" comments="" direction="None" id="FINED" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="7" comments="" direction="None" id="RXD5" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
-        <pinItem allocation="9" comments="" direction="None" id="TXD5" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="17" comments="" direction="None" id="RXD5" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
+        <pinItem allocation="18" comments="" direction="None" id="TXD5" isUsedBySoftware="true" locked="false" operationMode="" status="0"/>
     </tool>
     <tool id="Summary" version="1.0.0.0">
         <option id="com.renesas.smc.code.path" value="src\smc_gen"/>
@@ -1131,7 +1131,7 @@
         <configuration apiMode="FULL_API" id="b80b456c-e1b8-48d8-b365-e7ccdf8de898" inuse="true" name="Config_SCI5">
             <allocatable id="SCI5">
                 <isocket id="CountingClockB" selection="Clock.tool_clock_pclkb" value="6.0E7"/>
-                <option enabled="true" id="BitEdge" selection="LowLevel">
+                <option enabled="true" id="BitEdge" selection="FallEdge">
                     <item id="LowLevel" input="" vlaue="0"/>
                     <item id="FallEdge" input="" vlaue="0"/>
                 </option>
@@ -1180,7 +1180,7 @@
                     <item id="6Cyl" input="" vlaue="0"/>
                 </option>
                 <option enabled="true" id="Bitrate" selection="FreeValue">
-                    <item id="FreeValue" input="3750000" vlaue="9600"/>
+                    <item id="FreeValue" input="2000000" vlaue="9600"/>
                     <item id="9600" input="9600" vlaue="0"/>
                     <item id="19200" input="19200" vlaue="0"/>
                     <item id="31250" input="31250" vlaue="0"/>
@@ -1190,7 +1190,7 @@
                     <item id="325000" input="325000" vlaue="0"/>
                     <item id="375000" input="375000" vlaue="0"/>
                 </option>
-                <option enabled="true" id="DutyCorrection" selection="Disable">
+                <option enabled="true" id="DutyCorrection" selection="Enable">
                     <item id="Enable" input="" vlaue="0"/>
                     <item id="Disable" input="" vlaue="0"/>
                 </option>
