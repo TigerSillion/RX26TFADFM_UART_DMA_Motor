@@ -1,5 +1,107 @@
 # Change Records
 
+## Record 2026-02-16-23
+- Date: 2026-02-16
+- Executor: Codex
+- Scope: Build metadata convergence fix for `clean build` stability (single entry + single motor-driver implementation)
+- Related files:
+  - `.cproject`
+  - `RX26TFADFM_UART_DMA_Motor.rcpc`
+  - `HardwareDebug/src/subdir.mk`
+  - `HardwareDebug/src/app/mcu/rx26t/subdir.mk`
+  - `HardwareDebug/LinkerRX26TFADFM_UART_DMA_Motor.tmp`
+  - `HardwareDebug/LibraryGeneratorRX26TFADFM_UART_DMA_Motor.tmp`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - `make clean && make all` still reintroduced and linked stale legacy objects (`RX26TFADFM_UART_DMA_Motor.obj`, `r_motor_driver_smc.obj`) due drift in `rcpc/HardwareDebug` metadata.
+- Fix summary:
+  - Added source-level exclusion in `.cproject`:
+    - `RX26TFADFM_UART_DMA_Motor.c`
+    - `app/mcu/rx26t/r_motor_driver_smc.c`
+  - Removed legacy source entries from `RX26TFADFM_UART_DMA_Motor.rcpc`:
+    - `src\RX26TFADFM_UART_DMA_Motor.c`
+    - `src\app\mcu\rx26t\r_motor_driver_smc.c`
+  - Removed legacy object entries from `RX26TFADFM_UART_DMA_Motor.rcpc` link order:
+    - `HardwareDebug\RX26TFADFM_UART_DMA_Motor.obj`
+    - `HardwareDebug\r_motor_driver_smc.obj`
+  - Updated `HardwareDebug/src/subdir.mk` and `HardwareDebug/src/app/mcu/rx26t/subdir.mk` to active source set only.
+  - Updated `HardwareDebug/LinkerRX26TFADFM_UART_DMA_Motor.tmp` to remove stale legacy object inputs.
+  - Updated library head to include `math` in:
+    - `RX26TFADFM_UART_DMA_Motor.rcpc`
+    - `HardwareDebug/LibraryGeneratorRX26TFADFM_UART_DMA_Motor.tmp`
+- Risk assessment:
+  - Low: configuration-only fix; no functional logic change.
+  - Medium: `HardwareDebug/*.tmp` are generated artifacts and may be overwritten if project generation settings are changed again.
+- Validation evidence:
+  - 2026-02-16 16:44 +08:00:
+    - `make clean; make -j8 all` -> FAIL
+    - Key log: `F0563300:Cannot open file : ".\src\app\mcu\rx26t\r_motor_driver_smc.obj"`
+  - 2026-02-16 16:49 +08:00:
+    - `make clean; make -j8 all` -> PASS (`Build complete.`)
+  - Post-check:
+    - `rg -n "RX26TFADFM_UART_DMA_Motor\.obj|r_motor_driver_smc\.obj" HardwareDebug/LinkerRX26TFADFM_UART_DMA_Motor.tmp` -> no match
+    - `Select-String ... RX26TFADFM_UART_DMA_Motor.rcpc` for legacy source/object entries -> no match
+
+## Record 2026-02-16-17
+- Date: 2026-02-16
+- Executor: Codex
+- Scope: RX26T motor-control merge to MTU3/4 baseline + UART-DMA non-blocking integration
+- Related files:
+  - `.cproject`
+  - `RX26TFADFM_UART_DMA_Motor.rcpc`
+  - `HardwareDebug/src/subdir.mk`
+  - `HardwareDebug/src/app/mcu/rx26t/subdir.mk`
+  - `HardwareDebug/LinkerRX26TFADFM_UART_DMA_Motor.tmp`
+  - `HardwareDebug/LibraryGeneratorRX26TFADFM_UART_DMA_Motor.tmp`
+  - `src/app/mcu/rx26t/r_app_mcu.c`
+  - `src/app/motor_module/Config_MOTOR/Config_MOTOR.h`
+  - `src/app/motor_module/Config_MOTOR/Config_MOTOR.c`
+  - `src/app/motor_module/Config_MOTOR/Config_MOTOR_user.c`
+  - `src/smc_gen/Config_S12AD0/Config_S12AD0_user.c`
+  - `src/smc_gen/Config_CMT0/Config_CMT0_user.c`
+  - `src/smc_gen/Config_POE/Config_POE_user.c`
+  - `src/app/uart_dma/uart_dma_demo.h`
+  - `src/app/uart_dma/uart_dma_demo.c`
+  - `src/app/main/mtr_main.c`
+  - `src/app/user_interface/ics/ICS2_RX26T.c`
+  - `docs/MOTOR_PORTING_MAP.md`
+  - `docs/SMC_GEN_MODIFICATIONS.md`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - Resolve dual-main and dual-motor-driver conflicts, align HAL to `POE/S12AD0`, wire SMC user ISRs to motor interrupts, and merge UART-DMA into motor main loop in non-blocking mode.
+- Risk assessment:
+  - Medium: UART autosweep interval semantics changed from blocking delay to poll-driven scheduling.
+  - Medium: linker section layout updated with `BDTCTBL`, requires e2studio config continuity.
+  - Low: SMC modifications are limited to user code blocks only.
+- Validation evidence:
+  - 2026-02-16 16:14 +08:00: single-file compile using CCRX subcommand (pass set):
+    - `C:\CS+8.13\CS+\CC\CC-RX\V3.07.00\bin\ccrx.exe -subcommand="HardwareDebug/src/app/mcu/rx26t/cSubCommand.tmp" src/app/mcu/rx26t/r_app_mcu.c` -> PASS
+    - `... -subcommand="HardwareDebug/src/app/motor_module/Config_MOTOR/cSubCommand.tmp" src/app/motor_module/Config_MOTOR/Config_MOTOR.c` -> FAIL (`_20_MTR_MTU_OLS3N_HL` undefined), then fixed macro usage and re-run -> PASS
+    - `... Config_MOTOR_user.c` -> PASS
+    - `... mtr_main.c` -> PASS
+    - `... uart_dma_demo.c` -> PASS
+    - `... Config_S12AD0_user.c` -> PASS
+    - `... Config_CMT0_user.c` -> PASS
+    - `... Config_POE_user.c` -> PASS
+  - 2026-02-16 16:20 +08:00: full build
+    - `make all` (with CCRX bin in PATH) -> FAIL (undefined math symbols + `___asm`)
+  - 2026-02-16 16:24 +08:00: rebuild after fixes
+    - `make clean; make all` -> FAIL (`BDTCTBL` section address not assigned)
+  - 2026-02-16 16:28 +08:00: rebuild after linker section update
+    - `make all` -> FAIL (`renesas_cc_converter` not found in PATH)
+  - 2026-02-16 16:30 +08:00: final full build
+    - `make all` with PATH including:
+      - `C:\CS+8.13\CS+\CC\CC-RX\V3.07.00\bin`
+      - `C:\Renesas\e2_studio_v6.2.0\Utilities\ccrx`
+    - Result -> PASS (`Build complete.`)
+- Verification summary:
+  - No active build of `src/RX26TFADFM_UART_DMA_Motor.c`.
+  - No active build of `src/app/mcu/rx26t/r_motor_driver_smc.c`.
+  - Link no longer reports `multiple definition of main` or `multiple definition of R_Config_MOTOR_*`.
+  - UART-DMA merged as non-blocking service in motor main path (`mtr_init` + `mtr_main`).
+
 ## Record 2026-02-14-01
 - Date: 2026-02-14
 - Executor: Codex
@@ -439,3 +541,53 @@
   - 2026-02-15: fallback probe over `100k..4M` reported `NOT_FOUND`
 - Conclusion:
   - MCU is not currently in command-responsive runtime state; further automated sweep requires user-side reset/resume first.
+
+## Record 2026-02-16-22
+- Date: 2026-02-16
+- Executor: Codex
+- Scope: UART-DMA firmware full protocol completion (ASCII + BIN dual-mode)
+- Related files:
+  - `src/app/common/app_types.h`
+  - `src/app/uart_dma/uart_dma_port.h`
+  - `src/app/uart_dma/uart_dma_port.c`
+  - `src/app/uart_dma/uart_dma_demo.c`
+  - `tools/UartRateTester/uart_frame_tester.py`
+  - `tools/UartRateTester/README.md`
+  - `docs/MIDDLEWARE_FLOW_UART_DMA.md`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - User requested to continue implementing complete functionality and align coding/algorithm workflow with Renesas full-solution style.
+  - Mapped current project from MVP echo/line-command mode to manager-like dual-mode control path (state machine + framed protocol + diagnostics).
+- Implementation summary:
+  - Added BIN frame protocol (`A5 5A LEN CMD SEQ PAYLOAD CRC16`) with parser state machine and resync.
+  - Added runtime protocol mode switch:
+    - `@PROTO:BIN`
+    - `@PROTO:ASCII`
+    - `@PROTO:STATUS`
+  - Implemented BIN command set:
+    - `PING`
+    - `GET_BAUD`
+    - `SET_BAUD`
+    - `GET_STATS`
+    - `CLEAR_STATS`
+    - `ECHO_CTRL`
+    - `BURST_TX`
+    - `AUTOSWEEP_SET`
+    - `AUTOSWEEP_STOP`
+    - `AUTOSWEEP_STATUS`
+    - `MODE_SET`
+    - `RAW_ECHO`
+  - Extended diagnostics with protocol counters and added event-report API at port layer.
+  - Added host-side binary protocol tester script for deterministic BIN validation.
+- Risk assessment:
+  - Medium: protocol mode switch adds new runtime branch; host scripts must select proper mode before binary commands.
+  - Low: no `smc_gen` modification in this change; hardware driver bridge remains unchanged.
+- Validation evidence:
+  - 2026-02-16 11:06: `ccrx -nologo -isa=rxv3 -lang=c99 -output=obj ... src/app/uart_dma/uart_dma_demo.c` -> PASS
+  - 2026-02-16 11:06: `ccrx -nologo -isa=rxv3 -lang=c99 -output=obj ... src/app/uart_dma/uart_dma_port.c` -> PASS
+  - 2026-02-16 11:06: `ccrx -nologo -isa=rxv3 -lang=c99 -output=obj ... src/RX26TFADFM_UART_DMA_Motor.c` -> PASS
+  - 2026-02-16 11:07: `python -m py_compile tools/UartRateTester/uart_frame_tester.py` -> PASS
+  - 2026-02-16 11:07: `python -m py_compile tools/UartRateTester/uart_rate_tester.py` -> PASS
+  - 2026-02-16 11:07: `python -m py_compile tools/UartRateTester/uart_desc_loss_scan.py` -> PASS
+  - 2026-02-16 11:07: `python -m py_compile tools/UartRateTester/uart_stable_point_scan.py` -> PASS

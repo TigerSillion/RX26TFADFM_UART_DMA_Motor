@@ -1,5 +1,83 @@
 # Changelog
 
+## 2026-02-16
+
+### Added
+- Binary frame protocol path in firmware (`SOF/LEN/CMD/SEQ/PAYLOAD/CRC16`) with parser state machine and resync.
+- Protocol diagnostic counters in `uart_dma_diag_t`:
+  - `proto_frame_ok_count`
+  - `proto_crc_error_count`
+  - `proto_len_error_count`
+  - `proto_resync_count`
+  - `proto_tx_count`
+  - `proto_cmd_error_count`
+- New host-side binary protocol test utility:
+  - `tools/UartRateTester/uart_frame_tester.py`
+
+### Changed
+- `src/app/uart_dma/uart_dma_demo.c`:
+  - Added dual-mode command handling (`ASCII` and `BIN`) with runtime switching:
+    - `@PROTO:BIN`
+    - `@PROTO:ASCII`
+    - `@PROTO:STATUS`
+  - Implemented BIN command set:
+    - `PING/GET_BAUD/SET_BAUD/GET_STATS/CLEAR_STATS/ECHO_CTRL/BURST_TX/AUTOSWEEP_SET/AUTOSWEEP_STOP/AUTOSWEEP_STATUS/MODE_SET/RAW_ECHO`
+  - Kept backward compatibility for existing ASCII command channel and GUI workflow.
+- `src/app/uart_dma/uart_dma_port.*`:
+  - Added protocol diagnostic event reporting interface.
+- `docs/MIDDLEWARE_FLOW_UART_DMA.md`:
+  - Updated from roadmap-style notes to implemented flow (mode switching, frame parser, command set, diagnostics).
+- `tools/UartRateTester/README.md`:
+  - Added binary frame tester usage.
+
+### Added (Motor Merge)
+- Porting map for motor baseline unification:
+  - `docs/MOTOR_PORTING_MAP.md`
+- New public UART integration interfaces:
+  - `uart_dma_demo_init(void)`
+  - `uart_dma_demo_poll(void)`
+- Added missing motor HAL interfaces in MTU driver:
+  - `R_Config_MOTOR_UpdZeroDuty(void)`
+  - `R_Config_MOTOR_UpdCompareDuty(void)`
+
+### Changed (Motor Merge)
+- Unified active build baseline to motor main + MTU implementation:
+  - Build graph now excludes `src/RX26TFADFM_UART_DMA_Motor.c` from active link.
+  - Build graph now excludes `src/app/mcu/rx26t/r_motor_driver_smc.c` from active link.
+  - Active motor driver implementation is `src/app/motor_module/Config_MOTOR/*`.
+- HAL adaptation in `src/app/mcu/rx26t/r_app_mcu.c`:
+  - Replaced `POEG` calls with `POE` calls.
+  - Removed `R_Config_S12AD2_Start()` path and kept `S12AD0`.
+  - Added optional no-op watchdog wrapper `r_app_watchdog_kick()`.
+  - Updated board UI ADC read path to `S12AD`.
+- SMC user ISR wiring:
+  - `src/smc_gen/Config_S12AD0/Config_S12AD0_user.c` -> `mtr_interrupt_current_cyclic()`
+  - `src/smc_gen/Config_CMT0/Config_CMT0_user.c` -> `mtr_interrupt_speed_cyclic()`
+  - `src/smc_gen/Config_POE/Config_POE_user.c` -> `mtr_interrupt_hw_overcurrent()`
+- UART merged as non-blocking service:
+  - `src/app/uart_dma/uart_dma_demo.c` refactored to init/poll model.
+  - `src/app/main/mtr_main.c` now calls UART init in `mtr_init()` and UART poll in `mtr_main()`.
+  - `uart_dma_demo_run_forever()` kept as compatibility wrapper.
+- Build metadata convergence updates:
+  - `.cproject`
+  - `RX26TFADFM_UART_DMA_Motor.rcpc`
+  - `HardwareDebug/src/subdir.mk`
+  - `HardwareDebug/src/app/mcu/rx26t/subdir.mk`
+  - `HardwareDebug/LinkerRX26TFADFM_UART_DMA_Motor.tmp`
+  - `HardwareDebug/LibraryGeneratorRX26TFADFM_UART_DMA_Motor.tmp`
+- Linker layout extended to include DTC table section:
+  - Added `BDTCTBL` into `-start` section list.
+
+### Fixed (Motor Merge)
+- `src/app/motor_module/Config_MOTOR/Config_MOTOR_user.c` compile break by removing invalid include `r_app_rmw.h`.
+- `src/app/user_interface/ics/ICS2_RX26T.c` unresolved `___asm` symbol by replacing `__asm(\"nop\")` with `R_BSP_NOP()`.
+- Build metadata drift after `clean`:
+  - Added `.cproject` source exclusion for `RX26TFADFM_UART_DMA_Motor.c` and `app/mcu/rx26t/r_motor_driver_smc.c`.
+  - Removed legacy `src/RX26TFADFM_UART_DMA_Motor.c` and `src/app/mcu/rx26t/r_motor_driver_smc.c` from `RX26TFADFM_UART_DMA_Motor.rcpc` file list/link order.
+  - Synced `HardwareDebug/src/subdir.mk` and `HardwareDebug/src/app/mcu/rx26t/subdir.mk` to active source set only.
+  - Synced `HardwareDebug/LinkerRX26TFADFM_UART_DMA_Motor.tmp` to remove stale legacy object inputs.
+  - Added `math` library head in `RX26TFADFM_UART_DMA_Motor.rcpc` and `HardwareDebug/LibraryGeneratorRX26TFADFM_UART_DMA_Motor.tmp`.
+
 ## 2026-02-14
 
 ### Added
