@@ -78,6 +78,23 @@
   - Synced `HardwareDebug/LinkerRX26TFADFM_UART_DMA_Motor.tmp` to remove stale legacy object inputs.
   - Added `math` library head in `RX26TFADFM_UART_DMA_Motor.rcpc` and `HardwareDebug/LibraryGeneratorRX26TFADFM_UART_DMA_Motor.tmp`.
 
+### Added (Documentation)
+- Added detailed Chinese motor-control architecture and troubleshooting guide:
+  - `docs/MOTOR_CONTROL_DETAILED_GUIDE_CN.md`
+- Guide content includes:
+  - End-to-end motor software structure diagrams (entry, manager, algorithm, driver, peripherals)
+  - Main-loop and interrupt flowcharts (S12AD0/CMT0/POE wiring)
+  - Global-variable map and error-bit interpretation
+  - Step-by-step "motor not spinning" diagnosis procedure based on concrete global variable observations
+  - Recommended watch lists for ICS-visible variables and deep debugger variables
+- Added one-page quick-debug handbook for on-site triage:
+  - `docs/MOTOR_CONTROL_QUICK_DEBUG_CN.md`
+- Quick handbook content includes:
+  - Top-15 must-watch variables
+  - 10-minute troubleshooting path
+  - Symptom-to-root-cause quick mapping
+  - Current-project default thresholds and shortest observation sequence
+
 ## 2026-02-14
 
 ### Added

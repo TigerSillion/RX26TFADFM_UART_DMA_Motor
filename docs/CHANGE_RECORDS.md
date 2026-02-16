@@ -1,5 +1,62 @@
 # Change Records
 
+## Record 2026-02-16-25
+- Date: 2026-02-16
+- Executor: Codex
+- Scope: 新增电机现场排障“一页纸速查版”并同步文档日志
+- Related files:
+  - `docs/MOTOR_CONTROL_QUICK_DEBUG_CN.md`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - 用户要求继续补充文档，并在完成后更新到 GitHub；需提供更适合现场快速定位的简版排障指南。
+- Implementation summary:
+  - 新增 `docs/MOTOR_CONTROL_QUICK_DEBUG_CN.md`：
+    - 15 个必看变量（模式/采样/启动门槛）
+    - 10 分钟分步排障路径
+    - 症状-根因快速判定表
+    - 当前工程默认阈值与最短观测序列
+  - 在 `CHANGELOG.md` 的 `Added (Documentation)` 小节追加该速查版说明。
+- Risk assessment:
+  - Low: 文档更新，不涉及固件功能与构建链改动。
+- Validation evidence:
+  - 2026-02-16 17:59:32 +08:00:
+    - `Get-Date -Format "yyyy-MM-dd HH:mm:ss K"` -> `2026-02-16 17:59:32 +08:00`
+  - 2026-02-16 18:00 +08:00:
+    - `rg -n "# RX26T 电机不转一页纸速查（10 分钟版）|## 2\\. 10 分钟排障路径|## 3\\. 快速判定表" docs/MOTOR_CONTROL_QUICK_DEBUG_CN.md` -> PASS（命中核心章节）
+    - `rg -n "MOTOR_CONTROL_QUICK_DEBUG_CN\\.md|Quick handbook content includes|one-page quick-debug" CHANGELOG.md` -> PASS（命中日志条目）
+    - `Get-Item docs/MOTOR_CONTROL_QUICK_DEBUG_CN.md | Select-Object FullName,Length,LastWriteTime` -> PASS（文件存在且时间戳更新）
+
+## Record 2026-02-16-24
+- Date: 2026-02-16
+- Executor: Codex
+- Scope: 电机控制详细中文设计/排障文档补充（结构图 + 全局变量 + 流程图 + 不转定位步骤）
+- Related files:
+  - `docs/MOTOR_CONTROL_DETAILED_GUIDE_CN.md`
+  - `CHANGELOG.md`
+  - `docs/CHANGE_RECORDS.md`
+- Reason:
+  - 用户要求提供一份完整中文说明文档，重点覆盖电机部分的软件结构图、全局变量解释、流程图，以及“电机不转”时按变量逐步定位问题的方法。
+- Implementation summary:
+  - 新增 `docs/MOTOR_CONTROL_DETAILED_GUIDE_CN.md`，内容包含：
+    - 电机软件分层结构图（入口/系统管理/算法/驱动/外设）
+    - 主循环流程图与中断流程图（S12AD0/CMT0/POE）
+    - 顶层状态机与 RUN 内子状态说明
+    - 关键全局变量说明（ICS 可观测 + 深度 watch 变量）
+    - `u2_error_status` 错误位解码表
+    - 默认关键参数与阈值（周期、保护、电机参数）
+    - “电机不转”逐步排障流程与步骤化检查表
+  - 在 `CHANGELOG.md` 增加 `Added (Documentation)` 条目并登记文档新增内容。
+- Risk assessment:
+  - Low: 本次变更为文档更新，不改动固件逻辑与构建配置。
+- Validation evidence:
+  - 2026-02-16 17:36:37 +08:00:
+    - `Get-Date -Format "yyyy-MM-dd HH:mm:ss K"` -> `2026-02-16 17:36:37 +08:00`
+  - 2026-02-16 17:37 +08:00:
+    - `rg -n "# RX26T 电机控制代码详解与排障手册（中文）|## 9\\. 电机不转排障流程|## 10\\. 推荐 Watch 变量清单" docs/MOTOR_CONTROL_DETAILED_GUIDE_CN.md` -> PASS（命中 3 处核心章节）
+    - `rg -n "MOTOR_CONTROL_DETAILED_GUIDE_CN\\.md|Added \\(Documentation\\)" CHANGELOG.md` -> PASS（命中 changelog 记录）
+    - `Get-Item docs/MOTOR_CONTROL_DETAILED_GUIDE_CN.md | Select-Object FullName,Length,LastWriteTime` -> PASS（文件存在且时间戳更新）
+
 ## Record 2026-02-16-23
 - Date: 2026-02-16
 - Executor: Codex
